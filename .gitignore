@@ -3,6 +3,8 @@
 
 # Environment files
 .env
+.env.dev
+.env.testing
 .env.local
 .env.*.php
 
@@ -13,6 +15,7 @@
 /tmp/
 
 # PHPUnit
+.phpunit.cache*
 .phpunit.result.cache
 
 # IDE / Editor settings
