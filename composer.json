@@ -1,6 +1,6 @@
 {
-    "name": "gagan/php8-learn",
-    "description": "This is a learning project",
+    "name": "gagan/php-core-server",
+    "description": "A minimalist PHP router and response layer for building web and API servers.",
     "type": "project",
     "require": {
         "php": "^8.0",
