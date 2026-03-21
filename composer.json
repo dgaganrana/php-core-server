@@ -8,7 +8,8 @@
         "monolog/monolog": "^3.0",
         "php-di/php-di": "^7.1",
         "psr/http-message": "^2.0",
-        "guzzlehttp/psr7": "^2.9"
+        "guzzlehttp/psr7": "^2.9",
+        "doctrine/dbal": "^4.4"
     },
     "autoload": {
         "files": [
