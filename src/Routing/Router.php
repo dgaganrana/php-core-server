@@ -2,6 +2,7 @@
 namespace App\Routing;
 
 use App\Http\Response;
+use Psr\Container\ContainerInterface;
 
 class Router
 {
@@ -34,10 +35,10 @@ class Router
     }
 
     /**
-     * Dispatch the request to the correct handler
-     * Assumes $path and $method are already normalized by index.php
+     * Dispatch the request to the correct handler.
+     * Now uses DI container to resolve controllers.
      */
-    public function dispatch(string $path, string $method): Response
+    public function dispatch(string $path, string $method, ContainerInterface $container): Response
     {
         $handler = $this->routes[$method][$path] ?? null;
 
@@ -47,7 +48,8 @@ class Router
 
         if (is_array($handler)) {
             [$class, $action] = $handler;
-            $controller = new $class();
+            // Resolve controller via DI container
+            $controller = $container->get($class);
             return $this->normalizeResponse($controller->$action());
         }
 
