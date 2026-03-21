@@ -1,22 +1,10 @@
 <?php
 use App\Config\AppEnv;
-use App\Config\AppLogger;
 use App\Routing\Router;
-use DI\ContainerBuilder;
-use Monolog\Logger;
 
 AppEnv::load(APP_ROOT);
 
-// Build DI container
-$containerBuilder = new ContainerBuilder();
-$containerBuilder->addDefinitions([
-    Logger::class => function () {
-        // One shared logger instance
-        return AppLogger::getLogger();
-    }
-]);
-
-$container = $containerBuilder->build();
+$container = require APP_ROOT . '/config/di.php';
 
 // Initialize router
 $router = new Router();

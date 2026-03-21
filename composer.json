@@ -14,9 +14,6 @@
         ],
         "psr-4": {
             "App\\": "src/",
-            "App\\Routing\\": "src/Routing/",
-            "App\\Services\\": "src/Services",
-            "App\\Http\\": "src/Http",
             "Tests\\": "tests/",
             "App\\Config\\": "config/"
         }

@@ -1,17 +1,15 @@
 <?php
+declare(strict_types=1);
+
 namespace App\Controllers;
 
+use App\Core\BaseController;
 use App\Http\Response;
-use Monolog\Logger;
 
-class HomeController {
-    private Logger $logger;
-
-    public function __construct(Logger $logger) {
-        $this->logger = $logger;
-    }
-
-    public function index(): Response {
+class HomeController extends BaseController
+{
+    public function index(): Response
+    {
         $this->logger->info("Home page accessed");
 
         ob_start();
