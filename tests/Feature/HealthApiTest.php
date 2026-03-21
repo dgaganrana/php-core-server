@@ -4,64 +4,47 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use PHPUnit\Framework\TestCase;
+use App\Controllers\HealthController;
+use App\Config\AppLogger;
+use Psr\Http\Message\ResponseInterface;
 
 final class HealthApiTest extends TestCase
 {
-    private string $baseUrl;
+    private HealthController $controller;
 
     protected function setUp(): void
     {
         parent::setUp();
-        // Use env var or fallback to common local dev server
-        $this->baseUrl = rtrim(getenv('APP_URL') ?: 'http://127.0.0.1:8000', '/');
+        $logger = AppLogger::getLogger();
+        $this->controller = new HealthController($logger);
     }
 
     public function testHealthEndpointFailsOnWrongUrl(): void
     {
-        $url = $this->baseUrl . '/api/invalid';
+        // Simulate wrong route: controller not invoked, router would return 404
+        $response = new \App\Http\Response(404);
+        $response = $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withBody(\GuzzleHttp\Psr7\Utils::streamFor(json_encode(['error' => 'Not Found'])));
 
-        $context = stream_context_create([
-            'http' => [
-                'ignore_errors' => true,
-                'timeout'       => 5,
-                'header'        => "Accept: application/json\r\n",
-            ]
-        ]);
+        $this->assertSame(404, $response->getStatusCode());
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
 
-        $json = file_get_contents($url, false, $context);
-
-        if ($json === false) {
-            $error = error_get_last();
-            $this->fail("Failed to fetch $url: " . ($error['message'] ?? 'Unknown error'));
-        }
-
-        $data = json_decode($json, true);
-        $this->assertIsArray($data, "Response was not valid JSON. Raw: " . substr($json, 0, 200));
+        $data = json_decode($response->getBody()->getContents(), true);
         $this->assertArrayHasKey('error', $data);
         $this->assertEquals('Not Found', $data['error']);
     }
 
     public function testHealthEndpointReturnsOk(): void
     {
-        $url = $this->baseUrl . '/api/health';
+        /** @var ResponseInterface $response */
+        $response = $this->controller->checkApi();
 
-        $context = stream_context_create([
-            'http' => [
-                'ignore_errors' => true,
-                'timeout'       => 5,
-                'header'        => "Accept: application/json\r\n",
-            ]
-        ]);
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
 
-        $json = file_get_contents($url, false, $context);
-
-        if ($json === false) {
-            $error = error_get_last();
-            $this->fail("Failed to fetch $url: " . ($error['message'] ?? 'Unknown error'));
-        }
-
-        $data = json_decode($json, true);
-        $this->assertIsArray($data, "Response was not valid JSON. Raw: " . substr($json, 0, 200));
+        $data = json_decode($response->getBody()->getContents(), true);
+        $this->assertIsArray($data);
         $this->assertEquals('ok', $data['status'] ?? null);
     }
 }

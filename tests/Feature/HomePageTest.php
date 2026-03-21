@@ -4,18 +4,28 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use PHPUnit\Framework\TestCase;
+use App\Controllers\HomeController;
+use App\Config\AppLogger;
+use Psr\Http\Message\ResponseInterface;
 
 final class HomePageTest extends TestCase
 {
     public function testHomePageLoadsSuccessfully(): void
     {
-        $url = getenv('APP_URL') ?: 'http://127.0.0.1:8000';
+        // Arrange: inject logger via BaseController
+        $logger = AppLogger::getLogger();
+        $controller = new HomeController($logger);
 
-        $context = stream_context_create(['http' => ['ignore_errors' => true]]);
-        $html = @file_get_contents($url, false, $context);
+        // Act: call controller action
+        /** @var ResponseInterface $response */
+        $response = $controller->index();
 
-        // Expect non-empty HTML and a <title> tag
-        $this->assertNotFalse($html, "Home page did not load");
-        $this->assertStringContainsString('<title>', $html);
+        // Assert: response is valid PSR-7 object
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('text/html; charset=UTF-8', $response->getHeaderLine('Content-Type'));
+
+        $body = $response->getBody()->getContents();
+        $this->assertNotEmpty($body, "Home page body should not be empty");
+        $this->assertStringContainsString('<title>', $body);
     }
 }
