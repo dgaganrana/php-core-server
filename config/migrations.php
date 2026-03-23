@@ -1,10 +1,16 @@
 <?php
-declare(strict_types=1);
 
-use Doctrine\DBAL\DriverManager;
-use Doctrine\Migrations\Configuration\Migration\PhpFile;
-
-// Load constants
-require __DIR__ . '/constants.php';
-
-return new PhpFile(APP_ROOT . '/migrations-config.php');
+return [
+    'table_storage' => [
+        'table_name'              => 'doctrine_migration_versions',
+        'version_column_name'     => 'version',
+        'version_column_length'   => 200,
+        'executed_at_column_name' => 'executed_at',
+        'execution_time_column_name' => 'execution_time',
+    ],
+    'migrations_paths' => [
+        'App\\Migrations' => __DIR__ . '/../migrations',
+    ],
+    'all_or_nothing'          => true,
+    'check_database_platform' => true,
+];

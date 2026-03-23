@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Config;
 
 use Dotenv\Dotenv;
+use RuntimeException;
 
 final class AppEnv
 {
@@ -11,40 +12,21 @@ final class AppEnv
     {
         $env = getenv('APP_ENV') ?: 'development';
 
-        switch ($env) {
-            case 'testing':
-                $file = '.env.testing';
-                break;
-            case 'development':
-                $file = '.env.dev';
-                break;
-            default:
-                $file = '.env';
-        }
+        $file = match ($env) {
+            'testing'     => '.env.testing',
+            'development' => '.env.dev',
+            default       => '.env',
+        };
 
         $dotenv = Dotenv::createImmutable($baseDir, $file);
         $dotenv->safeLoad();
+
+        // Optional: fail early if critical vars are missing
+        $required = ['DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASS'];
+        foreach ($required as $key) {
+            if (!isset($_ENV[$key]) || $_ENV[$key] === '') {
+                throw new RuntimeException("Missing required env var: $key");
+            }
+        }
     }
 }
-
-// use Dotenv\Dotenv;
-
-// function loadEnv(): void {
-//     // Decide which env file to load based on APP_ENV
-//     $env = getenv('APP_ENV') ?: 'development';
-
-//     switch ($env) {
-//         case 'testing':
-//             $file = '.env.testing';
-//             break;
-//         case 'development':
-//             $file = '.env.dev';
-//             break;
-//         default:
-//             $file = '.env';
-//     }
-
-//     $dotenv = Dotenv::createImmutable(dirname(__DIR__), $file);
-//     $dotenv->safeLoad();
-// }
-
