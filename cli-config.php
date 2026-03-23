@@ -1,7 +1,8 @@
 <?php
 declare(strict_types=1);
 
-require_once __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/config/constants.php';
 
 use App\Config\AppEnv;
 use Doctrine\Migrations\Configuration\Migration\PhpFile;
@@ -10,17 +11,10 @@ use Doctrine\Migrations\DependencyFactory;
 use Doctrine\DBAL\DriverManager;
 
 // Load the correct .env file based on APP_ENV
-AppEnv::load(__DIR__);  // points to project root (where .env / .env.dev / .env.testing live)
+AppEnv::load(APP_ROOT);
 
-// Now environment variables are available
-$connectionParams = [
-    'host'     => $_ENV['DB_HOST']     ?? 'localhost',
-    'port'     => (int) ($_ENV['DB_PORT'] ?? 5432),
-    'dbname'   => $_ENV['DB_NAME']     ?? 'php-core-server_db',
-    'user'     => $_ENV['DB_USER']     ?? 'php-core-server_user',
-    'password' => $_ENV['DB_PASS']     ?? 'php-core-server_password',
-    'driver'   => 'pdo_pgsql',          // Postgres via PgBouncer
-];
+// Load database config
+$connectionParams = require APP_ROOT . '/config/database.php';
 
 // Optional: more robust fallback or validation
 if (empty($connectionParams['host']) || empty($connectionParams['dbname'])) {
@@ -32,7 +26,7 @@ if (empty($connectionParams['host']) || empty($connectionParams['dbname'])) {
 $connection = DriverManager::getConnection($connectionParams);
 
 // Your migrations config (the array-returning file)
-$config = new PhpFile(__DIR__ . '/config/migrations.php');  // or migrations-config.php if you kept that name
+$config = new PhpFile(APP_ROOT . '/config/migrations.php');
 
 return DependencyFactory::fromConnection(
     $config,

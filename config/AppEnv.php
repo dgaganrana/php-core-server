@@ -10,23 +10,21 @@ final class AppEnv
 {
     public static function load(string $baseDir): void
     {
-        $env = getenv('APP_ENV') ?: 'development';
-
-        $file = match ($env) {
-            'testing'     => '.env.testing',
-            'development' => '.env.dev',
-            default       => '.env',
-        };
-
-        $dotenv = Dotenv::createImmutable($baseDir, $file);
+        // Load environment variables from .env into $_ENV
+        $dotenv = Dotenv::createImmutable($baseDir, '.env');
         $dotenv->safeLoad();
 
-        // Optional: fail early if critical vars are missing
+        // Fail early if critical vars are missing
         $required = ['DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASS'];
         foreach ($required as $key) {
             if (!isset($_ENV[$key]) || $_ENV[$key] === '') {
                 throw new RuntimeException("Missing required env var: $key");
             }
         }
+    }
+
+    public static function get(string $key, ?string $default = null): string
+    {
+        return $_ENV[$key] ?? $default ?? throw new RuntimeException("Missing env var: $key");
     }
 }

@@ -14,7 +14,7 @@ class HealthController extends BaseController
     {
         $this->logger->info(__CLASS__ . '::' . __METHOD__ . ' - Web health check accessed');
 
-        $html = file_get_contents(APP_ROOT . '/public/healthPage.php');
+        $html = file_get_contents(APP_ROOT . '/public/homePage.php');
 
         $response = new Response(200);
         $response = $response

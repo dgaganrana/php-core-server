@@ -4,6 +4,7 @@ use App\Routing\Router;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Connection;
 
+
 // Load constants
 require __DIR__ . '/config/constants.php';
 
@@ -14,10 +15,10 @@ AppEnv::load(APP_ROOT);
 $container = require APP_ROOT . '/config/di.php';
 
 // Load database config (returns array)
-$dbConfig = require APP_ROOT . '/config/database.php';
+$connectionParams = require APP_ROOT . '/config/database.php';
 
 // Initialize Doctrine DBAL connection
-$dbConnection = DriverManager::getConnection($dbConfig);
+$dbConnection = DriverManager::getConnection($connectionParams);
 
 // Register database in DI container
 $container->set(Connection::class, fn() => $dbConnection);
